@@ -1,56 +1,173 @@
-Student Leave & Permission Management System
-Backend Service (MERN Stack)
-Overview
+UniLeave – Backend
 
-This repository contains the backend implementation of the Student Leave & Permission Management System, a role-based web application designed to replace informal and handwritten leave processes in educational institutions.
+Backend service for UniLeave, a role-based Student Leave Management System built using the MERN stack.
+This backend handles authentication, role-based access control, and core business logic for students, faculty, and administrators.
 
-The backend is responsible for authentication, role-based access control, leave request lifecycle management, approval workflows, reporting, and audit logging. It is built using Node.js, Express, and MongoDB, following standard software engineering principles such as separation of concerns, clear responsibility boundaries, and immutable state transitions.
+----------------------------------------------------------------
 
-Core Objectives
+Tech Stack
+- Node.js
+- Express.js
+- MongoDB (Atlas)
+- Mongoose
+- JWT (Authentication)
+- bcrypt (Password hashing)
 
-Enforce strict role-based access control
+----------------------------------------------------------------
 
-Provide a clean and traceable leave request lifecycle
+Project Structure (Backend)
 
-Support faculty approval workflows
+Backend/
+│
+├── server.js                 Entry point
+├── package.json
+├── .env                      Environment variables (not committed)
+├── .env.example              Sample env file
+│
+├── src/
+│   ├── app.js                Express app setup
+│   │
+│   ├── config/
+│   │   └── db.js             MongoDB connection
+│   │
+│   ├── models/
+│   │   ├── User.js           User schema
+│   │   └── LeaveRequest.js   Leave request schema
+│   │
+│   ├── controllers/
+│   │   └── auth.controller.js
+│   │
+│   ├── middleware/
+│   │   ├── auth.middleware.js
+│   │   └── role.middleware.js
+│   │
+│   ├── routes/
+│   │   └── auth.routes.js
+│   │
+│   ├── utils/
+│   │   └── password.js       Password hashing utilities
+│   │
+│   └── seed/
+│       └── seedUsers.js      One-time user seeding script
 
-Enable department-level reporting and oversight
+----------------------------------------------------------------
 
-Maintain structured, auditable records suitable for analysis and documentation
+How to Run the Backend (First Time Setup)
 
-User Roles Supported
+1. Clone the repository
 
-The system supports three distinct user roles:
+git clone https://github.com/Praneeth2607/UniLeave.git
+cd UniLeave/Backend
 
-Student
+----------------------------------------------------------------
 
-Apply for leave
+2. Install dependencies
 
-View leave request status and history
+npm install
 
-Read faculty remarks on rejected requests
+----------------------------------------------------------------
 
-Faculty
+3. Create the .env file
 
-View pending leave requests from assigned students
+Create a file named .env in the Backend root.
 
-Approve or reject leave requests
+Example:
 
-Add remarks during decision making
+PORT=5000
 
-Department Admin / HoD
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/Leave_Management
 
-View aggregated leave statistics
-Generate reports by class, faculty, or time period
-Monitor trends and approval patterns.
-Each role is enforced at the API and middleware level. Unauthorized access is blocked by design.
+JWT_SECRET=unileave_backend_secret
 
-Technology Stack
+Notes:
+- Do not wrap values in quotes
+- Make sure your IP is whitelisted in MongoDB Atlas
+- Database name must be included at the end of the URI
 
-Runtime: Node.js
-Framework: Express.js
-Database: MongoDB
-ODM: Mongoose
-Authentication: JWT (JSON Web Tokens)
-File Uploads: Multer
-Environment Management: dotenv
+----------------------------------------------------------------
+
+4. MongoDB Atlas Configuration
+
+- Security → Network Access
+  Add IP: 0.0.0.0/0 (for development)
+
+- Security → Database Access
+  Grant user: Read and write to any database
+
+----------------------------------------------------------------
+
+5. Seed initial users
+
+The backend does not have a registration API.
+Users are created using a seed script.
+
+Run:
+
+node src/seed/seedUsers.js
+
+This creates:
+- 1 Admin
+- 1 Faculty
+- 1 Student (linked to faculty)
+
+Sample credentials (development only):
+
+Admin    admin@college.edu    admin123
+Faculty  faculty@college.edu  faculty123
+Student  student@college.edu  student123
+
+----------------------------------------------------------------
+
+6. Start the backend server
+
+npm run dev
+
+Expected output:
+
+MongoDB connected successfully
+Server running on port 5000
+
+----------------------------------------------------------------
+
+7. Verify backend is running
+
+GET http://localhost:5000/health
+
+Response:
+{ "status": "Backend is running" }
+
+----------------------------------------------------------------
+
+Authentication Flow Summary
+
+- POST /api/auth/login
+- Backend verifies credentials
+- JWT token is generated and returned
+- Frontend stores token
+- Token is sent in Authorization header for protected routes
+- Backend verifies token on every request
+
+----------------------------------------------------------------
+
+Important Notes
+
+- node_modules is ignored via .gitignore
+- .env is never committed to GitHub
+- Backend is stateless (JWT-based authentication)
+- Logout is handled on the frontend by removing the token
+
+----------------------------------------------------------------
+
+Current Status
+
+The backend currently supports:
+- MongoDB connection
+- User schema with roles
+- Password hashing
+- JWT-based login
+- Seeded users for development
+
+Next steps:
+- Student leave request APIs
+- Faculty approval workflows
+- Admin reporting APIs
