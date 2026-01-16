@@ -20,12 +20,16 @@ export const AuthProvider = ({ children }) => {
     const data = await authService.login(email, password);
     setUser(data.user);
     return data;
+
+
   };
 
-  const logout = () => {
-    authService.logout();
-    setUser(null);
-  };
+const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  setUser(null);
+};
+
 
   const value = {
     user,
@@ -45,6 +49,9 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
+
+
+
 };
 
 export default AuthContext;
