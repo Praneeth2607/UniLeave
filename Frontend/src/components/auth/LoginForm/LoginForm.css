@@ -6,7 +6,7 @@
   justify-content: center;
 
   /* FIX: prevent double viewport height */
-  height: 100%;
+  height: 80%;
 
   padding: var(--spacing-lg);
 }
@@ -33,6 +33,11 @@
   50% {
     transform: translateY(-10px);
   }
+}
+.login-card.glass-effect {
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .login-header {

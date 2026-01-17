@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import './ParticleBackground.css';
+import React, { useEffect, useRef } from "react";
+import * as THREE from "three";
+import "./ParticleBackground.css";
 
 const ParticleBackground = () => {
   const containerRef = useRef(null);
@@ -10,6 +10,7 @@ const ParticleBackground = () => {
 
     // Scene setup
     const scene = new THREE.Scene();
+
     const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
@@ -18,55 +19,68 @@ const ParticleBackground = () => {
     );
     camera.position.z = 5;
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true
+    });
+
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
+
+    // 🔑 CRITICAL FIX
+    renderer.autoClear = false;
+    renderer.setClearColor(0x000000, 0);
+
     containerRef.current.appendChild(renderer.domElement);
 
     // Create particles
     const particlesGeometry = new THREE.BufferGeometry();
     const particleCount = 1500;
+
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
 
-    // Theme 4 colors in RGB
     const colorPalette = [
-      new THREE.Color(0x6366f1), // Primary
-      new THREE.Color(0xec4899), // Secondary
-      new THREE.Color(0x14b8a6), // Accent
+      new THREE.Color(0x6366f1),
+      new THREE.Color(0xec4899),
+      new THREE.Color(0x14b8a6)
     ];
 
     for (let i = 0; i < particleCount * 3; i += 3) {
-      // Position
       positions[i] = (Math.random() - 0.5) * 10;
       positions[i + 1] = (Math.random() - 0.5) * 10;
       positions[i + 2] = (Math.random() - 0.5) * 10;
 
-      // Color
-      const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+      const color =
+        colorPalette[Math.floor(Math.random() * colorPalette.length)];
       colors[i] = color.r;
       colors[i + 1] = color.g;
       colors[i + 2] = color.b;
     }
 
     particlesGeometry.setAttribute(
-      'position',
+      "position",
       new THREE.BufferAttribute(positions, 3)
     );
-    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    particlesGeometry.setAttribute(
+      "color",
+      new THREE.BufferAttribute(colors, 3)
+    );
 
     const particlesMaterial = new THREE.PointsMaterial({
       size: 0.05,
       vertexColors: true,
       transparent: true,
       opacity: 0.8,
-      blending: THREE.AdditiveBlending,
+      blending: THREE.AdditiveBlending
     });
 
-    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+    const particles = new THREE.Points(
+      particlesGeometry,
+      particlesMaterial
+    );
     scene.add(particles);
 
-    // Mouse movement effect
     let mouseX = 0;
     let mouseY = 0;
 
@@ -75,39 +89,35 @@ const ParticleBackground = () => {
       mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
 
-    // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Rotate particles
-      particles.rotation.x += 0.0005;
-      particles.rotation.y += 0.0005;
+      particles.rotation.x += 0.0005 + mouseY * 0.0002;
+      particles.rotation.y += 0.0005 + mouseX * 0.0002;
 
-      // Mouse interaction
-      particles.rotation.x += mouseY * 0.0002;
-      particles.rotation.y += mouseX * 0.0002;
-
+      // 🔑 CRITICAL FIX
+      renderer.clearDepth();
       renderer.render(scene, camera);
     };
 
     animate();
 
-    // Handle window resize
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
-    // Cleanup
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("resize", handleResize);
+
       containerRef.current?.removeChild(renderer.domElement);
+
       particlesGeometry.dispose();
       particlesMaterial.dispose();
       renderer.dispose();
